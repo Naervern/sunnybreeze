@@ -114,40 +114,41 @@ body{
 <div class="container">
     <div class="His"><p></p></div>
     <div class="Ti"><h1>Sunny Breeze<br><h2>weather monitor</h2></h1></div>
-    <div class="Hum"><p>Kosteus</p><h2><span id="humf">%HUM%</span> %</h2></div>
-    <div class="Tem"><p>Lämpötila</p><h2><span id="temf">%TEM%</span> ℃</h2></div>
+    <div class="Hum"><p>Kosteus</p><h2><span id="HumF">%HUM%</span> %</h2></div>
+    <div class="Tem"><p>Lämpötila</p><h2><span id="TemF">%TEM%</span> ℃</h2></div>
     <div class="AtmP"><p>Paine</p><p><span id="pressure">--</span> hPa</p></div>
     <div class="AirQ"><p>Saaste</p><p><span id="pressure">--</span> ppb</p></div>
   </div>
-  <div class="Cr"><h3>Weather awareness project by Naervern,<br>Antonio Maximiano Mascarenhas Almeida</h3></div>
+
 <script>
 if (!!window.EventSource) {
-  var source = new EventSource('/events');
-  source.addEventListener('open', function(e) {
-    console.log("Events Connected");
-  }, false);
-  source.addEventListener('error', function(e) {
-    if (e.target.readyState != EventSource.OPEN) {
-      console.log("Events Disconnected");
-    }
-  }, false);
-
-  source.addEventListener('message', function(e) {
-    console.log("message", e.data);
-  }, false);
-
-  source.addEventListener('temperature', function(e) {
-    console.log("temperature", e.data);
-    document.getElementById("temf").innerHTML = e.data;
-  }, false);
-
-  source.addEventListener('humidity', function(e) {
-    console.log("humidity", e.data);
-    document.getElementById("humf").innerHTML = e.data;
-  }, false);
+ var source = new EventSource('/events');
+ 
+ source.addEventListener('open', function(e) {
+  console.log("Events Connected");
+ }, false);
+ source.addEventListener('error', function(e) {
+  if (e.target.readyState != EventSource.OPEN) {
+    console.log("Events Disconnected");
+  }
+ }, false);
+ 
+ source.addEventListener('message', function(e) {
+  console.log("message", e.data);
+ }, false);
+ 
+ source.addEventListener('temperature', function(e) {
+  document.getElementById("temf").innerHTML = e.data;
+ }, false);
+ 
+ source.addEventListener('humidity', function(e) {
+  document.getElementById("humf").innerHTML = e.data;
+ }, false);
 }
+
 </script>
-</body></html>
+      
+</body><div class="Cr"><h3>Weather awareness project by Naervern,<br>Antonio Maximiano Mascarenhas Almeida</h3></div></html>
 
 )rawliteral";
 
@@ -216,7 +217,7 @@ void mode_normal(){
 }
 
 void schedule_time(){
-  Serial.printf("time(null) value: %d \n", time(NULL));//debug stuff
+  //Serial.printf("time(null) value: %d \n", time(NULL));//debug stuff
   //Serial.println(measurement_trigger == true); //debug stuff
 
   if((time(NULL) % 30) == 0 && measurement_trigger == true) {
@@ -265,19 +266,17 @@ void setup() {
 
   update_params();
 
-  server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);  //only when requested from AP
-
   events.onConnect([](AsyncEventSourceClient *client){
     if(client->lastId()){
       Serial.printf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
     }
     // send event with message "hello!", id current millis
     // and set reconnect delay to 1 second
-    client->send("hello!", NULL, millis(), 1000);
+    client->send("hello!", NULL, millis(), 10000);
   });
 
+  server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);  //only when requested from AP
   server.addHandler(&events);
-
   server.begin();
 }
 
@@ -285,15 +284,12 @@ void setup() {
 void loop() {
   
   mode_normal();
-  //digitalWrite(LED_BUILTIN, HIGH);//debug stuff
   //Serial.printf("The measurement trigger is %s", measurement_trigger ? "true" : "false"); //debug stuff
   //Serial.println(measurement_trigger);
   //esp_sleep_enable_timer_wakeup(500000);
   //ret = esp_light_sleep_start();
   //Serial.printf("light_sleep: %d\n", ret);
-  delay(200);
-  //digitalWrite(LED_BUILTIN, LOW);
-  delay(800);
+  delay(1000);
   //esp_sleep_enable_timer_wakeup(500000);
   //ret = esp_light_sleep_start();
   //Serial.printf("light_sleep: %d\n", ret);
